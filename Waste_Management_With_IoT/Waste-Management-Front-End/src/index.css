@@ -1,0 +1,148 @@
+*, *:before, *:after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-repeat: no-repeat;
+}
+
+body {
+  overflow: hidden;
+  overflow-y: scroll;
+}
+
+button, a, Link {
+  cursor: pointer;
+}
+
+hr {
+  width: 100%;
+  border: 1px solid grey;
+}
+
+li, a {
+  text-decoration: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+}
+
+.loginWrapper {
+  text-align: center;
+  margin: auto;
+  width: 40%;
+}
+
+.binCtn {
+  height: 15rem;
+  width: 20rem;
+  margin: 1rem;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border: 2px solid black;
+}
+
+.binCtn button {
+  height: 2.5rem;
+  width: 5rem;
+}
+
+.binBox {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.binWrapper {
+  height: 50%;
+  width: 80%;
+  margin: auto;
+  border: 2px solid black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.binBox .menuBar {
+  width: 100%;
+}
+
+#man {
+  height: 3rem;
+  width: 7rem;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
+}
+
+#loginCTN {
+  height: 100vh;
+  width: 100%;
+  margin: auto;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#loginBorder {
+  height: 95%;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid black;
+}
+
+#loginImgCTN {
+  height: 100%;
+  width: 45%;
+}
+#loginImgCTN img {
+  height: 100%;
+  width: 100%;
+}
+
+#loginFormCTN {
+  height: 100%;
+  width: 55%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+#loginFormCTN h1 {
+  margin: 0 0 1rem 0;
+}
+
+#loginFormCTN form {
+  width: 20rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+#menubarCTN {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: aliceblue;
+}
+
+#dashTD {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}

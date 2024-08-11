@@ -1,0 +1,48 @@
+[{
+  "_id": {
+    "$oid": "65b3bd3e8ba054a12ed49759"
+  },
+  "firstName": "Admin",
+  "lastName": "Kuhad",
+  "email": "sam@gmail.com",
+  "password": "$2a$10$Mf7AfC4YQOvE5o3KoQq9Vud5d4T8Elj5MqBvy7zZ.RgK7.sTT.VFG",
+  "batch": "BOWEE",
+  "status": false,
+  "role": "admin"
+},
+{
+  "_id": {
+    "$oid": "65b4dff57387bceacdc8358a"
+  },
+  "firstName": "sharon",
+  "lastName": "Antony",
+  "email": "samuvel6826@gmail.com",
+  "password": "$2a$10$YGnaqHMSdserSNTDvTqs6uuwZtyjSFuQNNrFDbUMgNqstynzRW2zW",
+  "batch": "3uygf22",
+  "status": false,
+  "role": "student"
+},
+{
+  "_id": {
+    "$oid": "65b5239f143eb15285a6f1f3"
+  },
+  "firstName": "Samuvel",
+  "lastName": "Antony",
+  "email": "samuvel6nb826@gmail.com",
+  "password": "$2a$10$8qOgAF8X0DVWL.3LqvgI2.VxvU/7.vK0Rrdu1lZ2gXUNncfXe3L2K",
+  "batch": "222",
+  "status": false,
+  "role": "student"
+},
+{
+  "_id": {
+    "$oid": "65b763a5a9244610854dd9bd"
+  },
+  "firstName": "Samuvel",
+  "lastName": "Antony",
+  "email": "hjkbkj@gmail.com",
+  "password": "$2a$10$7LweLhSwbjnlt6H1WTys/ey8zlBSQZSycvgIAKJgdBEOxzHR2pj0e",
+  "batch": "ug",
+  "status": false,
+  "role": "student"
+}]

@@ -1,0 +1,202 @@
+<html>
+
+<head>
+    <title>Web Designing Assignment - 1</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ddeeff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        form {
+            width: 50%;
+            max-width: 600px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        fieldset {
+            border: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        h2 {
+            padding: 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+            text-align: center;
+        }
+
+        hr {
+            margin-bottom: 0;
+        }
+
+        h1 {
+            font-size: 1.5em;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        p {
+            margin-bottom: 10px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        input[type="radio"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+
+        input[type="radio"] {
+            width: auto;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: large;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 3px;
+            display: block;
+            margin: 10px auto;
+            width: 100%;
+            max-width: auto;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        footer p {
+            font-size: 1em;
+        }
+
+        footer a {
+            color: #333;
+            text-decoration: none;
+        }
+    </style>
+    <!-- Include latest html2canvas library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.5.0-beta4/html2canvas.min.js"></script>
+    <!-- Include pdfmake library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.js"></script>
+</head>
+
+<body>
+    <form id="studentForm">
+        <fieldset>
+            <h2>Web Designing Assignment - 1</h2>
+            <hr>
+            <h1>I.B.Sc.CS - Students Record to PDF</h1>
+            <p>
+                Full Name: <input type="text" name="fname" />
+            </p>
+            <p>
+                Mail Address: <input type="email" name="mail" />
+            </p>
+            <p>Gender:
+                <input type="radio" name="Gender" value="Male"> Male
+                <input type="radio" name="Gender" value="Female"> Female
+            </p>
+            <p>
+                ABC ID: <input type="number" name="abcID" />
+            </p>
+            <p>
+                EMIS ID: <input type="number" name="emisID" />
+            </p>
+            <p>
+                UMIS ID: <input type="number" name="umisID" />
+            </p>
+            <p>
+                Registration Number: <input type="number" name="regNumber" />
+            </p>
+            <p>
+                Phone Number: <input type="number" name="phone" />
+            </p>
+            <p>
+                <button type="submit" name="submit" id="submitButton">Click to download as PDF</button>
+            </p>
+            <hr>
+            <footer>
+                <p>&copy; 2024 <a href="http://samtocode24.netlify.app" target="_blank"
+                        rel="noopener noreferrer">samtocode24.surge.sh</a>. All rights reserved by Samuvel A.</p>
+            </footer>
+        </fieldset>
+    </form>
+
+    <script>
+        document.getElementById('studentForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent default form submission
+
+            const submitButton = document.getElementById('submitButton');
+
+            submitButton.disabled = true; // Disable submit button
+            submitButton.textContent = 'Generating PDF...'; // Change submit button text
+
+            // Get the dimensions of the form
+            const formWidth = document.getElementById('studentForm').offsetWidth;
+            const formHeight = document.getElementById('studentForm').offsetHeight;
+
+            // Convert HTML content to canvas using html2canvas
+            html2canvas(document.getElementById('studentForm'), {
+                width: formWidth,
+                height: formHeight,
+                scrollY: -window.scrollY,
+                dpi: window.devicePixelRatio * 96 // Set DPI based on device pixel ratio
+            }).then(function (canvas) {
+                var imgData = canvas.toDataURL('image/png');
+
+                // Calculate image width and height to fit A4 page while maintaining aspect ratio
+                var imgWidth = 595; // Set width to A4 page width
+                var imgHeight = (canvas.height * imgWidth) / canvas.width; // Calculate height to maintain aspect ratio
+
+                // Add left margin to the image
+                var marginLeft = 20;
+
+                // Create PDF using pdfmake
+                var docDefinition = {
+                    pageSize: 'A4',
+                    pageOrientation: 'portrait',
+                    content: [{
+                        image: imgData,
+                        width: imgWidth,
+                        height: imgHeight,
+                        margin: [marginLeft, 0, 0, 0] // Set left margin
+                    }],
+                    pageMargins: [0, 0, 0, 0]
+                };
+                pdfMake.createPdf(docDefinition).download('student_details.pdf');
+
+                submitButton.disabled = false;
+                submitButton.textContent = 'Submit';
+            });
+        });
+    </script>
+</body>
+
+</html>

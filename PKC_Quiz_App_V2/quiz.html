@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDG Quiz Game</title>
+    <style>
+        body {
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1,
+        h2 {
+            text-align: center;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        ul li {
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Simple Quiz Game</h1>
+        <hr>
+        <form id="addQuestionForm">
+            <label for="question">Question:</label>
+            <input type="text" id="question" required>
+            <label for="option1">Option 1:</label>
+            <input type="text" id="option1" required>
+            <label for="option2">Option 2:</label>
+            <input type="text" id="option2" required>
+            <label for="answer">Correct Answer:</label>
+            <select id="answer" required>
+                <option value="0">Option 1</option>
+                <option value="1">Option 2</option>
+            </select>
+            <button type="submit">Add Question</button>
+        </form>
+
+        <button id="startQuizBtn">Start Quiz</button>
+
+        <div id="quizContainer" style="display: none;">
+            <h2 id="quizQuestion"></h2>
+            <form id="quizForm">
+                <label><input type="radio" name="answer" value="0"> <span id="option1Text"></span></label>
+                <label><input type="radio" name="answer" value="1"> <span id="option2Text"></span></label>
+                <button type="submit">Submit Answer</button>
+            </form>
+            <p id="quizResult"></p>
+        </div>
+
+        <div id="scoreContainer" style="display: none;">
+            <h2>Your Score</h2>
+            <p id="userScore"></p>
+            <button id="restartQuizBtn">Restart Quiz</button>
+        </div>
+
+        <h2>Questions</h2>
+        <ul id="questionList" style="display: none;"></ul>
+        <button id="viewQuestionsBtn">View Questions</button>
+
+        <button id="clearLocalStorageBtn">Clear Local Storage</button>
+    </div>
+
+    <script>
+        let questions = JSON.parse(localStorage.getItem('questions')) || [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        function toggleFormVisibility() {
+            document.getElementById('addQuestionForm').style.display =
+                document.getElementById('addQuestionForm').style.display === 'none' ? 'block' : 'none';
+        }
+
+        function addQuestion(event) {
+            event.preventDefault();
+            const question = document.getElementById('question').value;
+            const option1 = document.getElementById('option1').value;
+            const option2 = document.getElementById('option2').value;
+            const answerIndex = document.getElementById('answer').value;
+            const newQuestion = { question, options: [option1, option2], answerIndex: parseInt(answerIndex) };
+            questions.push(newQuestion);
+            localStorage.setItem('questions', JSON.stringify(questions));
+            displayQuestions();
+            document.getElementById('addQuestionForm').reset();
+        }
+
+        function displayQuestions() {
+            const questionList = document.getElementById('questionList');
+            questionList.innerHTML = '';
+            questions.forEach((question, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${index + 1}. ${question.question}`;
+                questionList.appendChild(listItem);
+            });
+        }
+
+        function startQuiz() {
+            toggleFormVisibility();
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('startQuizBtn').style.display = 'none';
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            const currentQuestion = questions[currentQuestionIndex];
+            const quizQuestion = document.getElementById('quizQuestion');
+            const option1Text = document.getElementById('option1Text');
+            const option2Text = document.getElementById('option2Text');
+
+            quizQuestion.textContent = currentQuestion.question;
+            option1Text.textContent = currentQuestion.options[0];
+            option2Text.textContent = currentQuestion.options[1];
+        }
+
+        function submitAnswer(event) {
+            event.preventDefault();
+            const selectedOption = document.querySelector('input[name="answer"]:checked');
+            if (!selectedOption) {
+                alert('Please select an answer.');
+                return;
+            }
+
+            const selectedAnswer = parseInt(selectedOption.value);
+            const currentQuestion = questions[currentQuestionIndex];
+            if (selectedAnswer === currentQuestion.answerIndex) {
+                score++;
+                document.getElementById('quizResult').textContent = 'Correct!';
+            } else {
+                document.getElementById('quizResult').textContent = 'Wrong!';
+            }
+
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                displayQuestion();
+            } else {
+                showScore();
+            }
+        }
+
+        function showScore() {
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('scoreContainer').style.display = 'block';
+            document.getElementById('userScore').textContent = `Your Score: ${score} / ${questions.length}`;
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            document.getElementById('addQuestionForm').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('scoreContainer').style.display = 'none';
+            document.getElementById('quizResult').textContent = '';
+            displayQuestion();
+        }
+
+        function clearLocalStorage() {
+            localStorage.removeItem('questions');
+            questions = [];
+            displayQuestions();
+        }
+
+        function toggleQuestionList() {
+            const questionList = document.getElementById('questionList');
+            questionList.style.display = questionList.style.display === 'none' ? 'block' : 'none';
+        }
+
+        document.getElementById('addQuestionForm').addEventListener('submit', addQuestion);
+        document.getElementById('quizForm').addEventListener('submit', submitAnswer);
+        document.getElementById('startQuizBtn').addEventListener('click', startQuiz);
+        document.getElementById('restartQuizBtn').addEventListener('click', restartQuiz);
+        document.getElementById('viewQuestionsBtn').addEventListener('click', toggleQuestionList);
+        document.getElementById('clearLocalStorageBtn').addEventListener('click', clearLocalStorage);
+
+        displayQuestions();
+    </script>
+</body>
+
+</html>
