@@ -1,0 +1,159 @@
+/* Global Styles */
+body {
+	font-family: "Roboto", sans-serif;
+	background-color: #f8f9fa;
+	color: #495057;
+	margin: 0;
+	padding: 0;
+	line-height: 1.6;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+}
+
+/* Container Styles */
+.container {
+	max-width: 800px;
+	width: 100%;
+	background-color: #ffffff;
+	padding: 30px;
+	border-radius: 12px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+	box-sizing: border-box;
+}
+
+/* Header Styles */
+h1 {
+	text-align: center;
+	color: #007bff;
+	margin-bottom: 20px;
+}
+
+/* Toggle Button Styles */
+#toggleAdmin {
+	display: block;
+	width: 200px;
+	padding: 10px;
+	background-color: #007bff;
+	color: #ffffff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	font-size: 16px;
+	text-align: center;
+	margin: 0 auto 20px auto; /* Center horizontally with spacing */
+	transition: background-color 0.3s ease;
+}
+
+#toggleAdmin:hover {
+	background-color: #0056b3;
+}
+
+/* Admin Panel Styles */
+#adminPanel {
+	margin-top: 20px;
+}
+
+/* Hidden class to hide elements */
+.hidden {
+	display: none;
+}
+
+/* Admin Controls Styles */
+#adminControls {
+	margin-top: 20px;
+}
+
+/* Input and Button Styles */
+.input-section {
+	display: flex;
+	justify-content: center;
+	gap: 15px; /* Space between inputs and button */
+	margin-bottom: 20px;
+}
+
+input[type="text"],
+input[type="password"] {
+	width: calc(50% - 15px);
+	padding: 12px;
+	border-radius: 5px;
+	border: 1px solid #ced4da;
+	font-size: 16px;
+	box-sizing: border-box;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus {
+	border-color: #007bff;
+	outline: none;
+}
+
+button {
+	padding: 12px 20px;
+	background-color: #28a745;
+	color: #ffffff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	font-size: 16px;
+	transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+	background-color: #218838;
+}
+
+button:active {
+	transform: scale(0.98);
+}
+
+/* Table Styles */
+table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 20px;
+}
+
+thead {
+	background-color: #007bff;
+	color: #ffffff;
+}
+
+th,
+td {
+	padding: 12px;
+	border: 1px solid #dee2e6;
+	text-align: center;
+}
+
+th {
+	font-weight: bold;
+}
+
+td {
+	background-color: #ffffff;
+}
+
+/* Navigation Button Styles */
+td button {
+	padding: 8px 16px;
+	background-color: #007bff;
+	color: #ffffff;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	font-size: 14px;
+}
+
+td button:hover {
+	background-color: #0056b3;
+}
+
+/* Error Message Styles */
+.error-message {
+	color: #dc3545;
+	text-align: center;
+	margin-bottom: 20px;
+	font-size: 16px;
+}

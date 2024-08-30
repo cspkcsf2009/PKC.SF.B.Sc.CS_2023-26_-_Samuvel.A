@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naan-Mudhalvan Project</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Naan-Mudhalvan Topics</h1>
+
+        <!-- Toggle Button -->
+        <button id="toggleAdmin" onclick="toggleAdminPanel()">Switch to Admin Panel</button>
+
+        <!-- Admin Panel: Hidden by default -->
+        <div id="adminPanel" class="hidden">
+            <div class="input-section">
+                <input type="password" id="adminPassword" placeholder="Enter Admin Password">
+                <button onclick="validatePassword()">Enter Admin Mode</button>
+            </div>
+
+            <div id="adminControls" class="hidden">
+                <div class="input-section">
+                    <input type="text" id="topicInput" placeholder="Enter a topic">
+                    <input type="text" id="urlInput" placeholder="Enter a URL">
+                    <button onclick="addTopic()">Add Topic</button>
+                </div>
+                <div id="errorMessage" class="error-message"></div>
+            </div>
+        </div>
+
+        <!-- Table visible to both user and admin -->
+        <table id="topicsTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Topic</th>
+                    <th>Navigation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Predefined rows for users -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
