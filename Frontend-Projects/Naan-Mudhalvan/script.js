@@ -83,9 +83,9 @@ function isValidURL(string) {
 
 function loadPredefinedData() {
     const predefinedTopics = [
-        { topic: 'Introduction to JavaScript', url: 'https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide' },
-        { topic: 'Learn HTML', url: 'https://developer.mozilla.org/en-US/docs/Web/HTML' },
-        { topic: 'CSS Basics', url: 'https://developer.mozilla.org/en-US/docs/Web/CSS' }
+        { topic: 'OOP Python', url: 'https://docs.google.com/document/d/1TaBZZWpa9dUI1JIaPEQoqtjFMGZmmwTguX_-RgFrgp0/edit?usp=sharing' },
+        // { topic: 'Learn HTML', url: 'https://developer.mozilla.org/en-US/docs/Web/HTML' },
+        // { topic: 'CSS Basics', url: 'https://developer.mozilla.org/en-US/docs/Web/CSS' }
     ];
 
     const table = document.getElementById('topicsTable').getElementsByTagName('tbody')[0];
