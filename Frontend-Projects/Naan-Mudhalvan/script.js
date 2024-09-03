@@ -83,7 +83,7 @@ function isValidURL(string) {
 
 function loadPredefinedData() {
     const predefinedTopics = [
-        { topic: 'OOP Python', url: 'https://docs.google.com/document/d/1TaBZZWpa9dUI1JIaPEQoqtjFMGZmmwTguX_-RgFrgp0/edit?usp=sharing' },
+        { topic: 'Assignment 1', url: 'https://drive.google.com/file/d/1E4JMMjj7EvbVs5iLNZ1zAqJp9rr-sCCF/view?usp=sharing' },
         // { topic: 'Learn HTML', url: 'https://developer.mozilla.org/en-US/docs/Web/HTML' },
         // { topic: 'CSS Basics', url: 'https://developer.mozilla.org/en-US/docs/Web/CSS' }
     ];
