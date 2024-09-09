@@ -83,9 +83,12 @@ function isValidURL(string) {
 
 function loadPredefinedData() {
     const predefinedTopics = [
-        { topic: 'Assignment 1', url: 'https://drive.google.com/file/d/1E4JMMjj7EvbVs5iLNZ1zAqJp9rr-sCCF/view?usp=sharing' },
-        // { topic: 'Learn HTML', url: 'https://developer.mozilla.org/en-US/docs/Web/HTML' },
-        // { topic: 'CSS Basics', url: 'https://developer.mozilla.org/en-US/docs/Web/CSS' }
+        { topic: '2. Abstraction & Encapsulation', url: 'https://docs.google.com/document/d/17YJULE8l86ohKEVuMD5rT4ZGUEB7D1ulz_AlkbRoUMc/edit?usp=sharing' },
+        { topic: '3. Assignment Set 1', url: 'https://docs.google.com/document/d/1Ub1qBYpSOUSXjq6ndyrLQnNNqBFESzS0zxiYl2IbCz0/edit?usp=sharing' },
+        { topic: '4. Static', url: 'https://docs.google.com/document/d/1Ot2NOqvmuW_DNSH_MAUeBrCW0pnZiU44Qh45aLjTKSo/edit?usp=sharing' },
+        { topic: '5. Assignment Set 2', url: 'https://docs.google.com/document/d/1vLME2BdCWX07IG_Qw9iYlqg2dtLsLPlImlGOs3hGhcQ/edit?usp=sharing' },
+        { topic: '6. Class Relationships', url: 'https://docs.google.com/document/d/1f4KokXp3kxYaS8d8M0NQ15X1LKSqM5AiMTurfj06Fec/edit?usp=sharing' },
+        { topic: '7. Assignment Set 3', url: 'https://docs.google.com/document/d/1p5LKZSeYCGBuKeW2hykaXDoVqSu1FWFhAn0ZQluSh_s/edit?usp=sharing' },
     ];
 
     const table = document.getElementById('topicsTable').getElementsByTagName('tbody')[0];
