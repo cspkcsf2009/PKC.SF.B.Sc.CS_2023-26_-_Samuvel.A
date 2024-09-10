@@ -13,10 +13,10 @@
         <h1>Naan-Mudhalvan Topics</h1>
 
         <!-- Toggle Button -->
-        <button id="toggleAdmin" onclick="toggleAdminPanel()">Switch to Admin Panel</button>
+        <button id="toggleAdmin" class="hidden" onclick="toggleAdminPanel()">Switch to Admin Panel</button>
 
         <!-- Admin Panel: Hidden by default -->
-        <div id="adminPanel" class="hidden">
+        <div id="adminPanel">
             <div class="input-section">
                 <input type="password" id="adminPassword" placeholder="Enter Admin Password">
                 <button onclick="validatePassword()">Enter Admin Mode</button>
