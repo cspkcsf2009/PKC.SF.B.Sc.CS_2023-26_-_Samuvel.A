@@ -87,7 +87,7 @@ function loadPredefinedData() {
         { topic: '3. Assignment Set 1', url: 'https://docs.google.com/document/d/1Ub1qBYpSOUSXjq6ndyrLQnNNqBFESzS0zxiYl2IbCz0/edit?usp=sharing' },
         { topic: '4. Static', url: 'https://docs.google.com/document/d/1Ot2NOqvmuW_DNSH_MAUeBrCW0pnZiU44Qh45aLjTKSo/edit?usp=sharing' },
         { topic: '5. Assignment Set 2', url: 'https://docs.google.com/document/d/1vLME2BdCWX07IG_Qw9iYlqg2dtLsLPlImlGOs3hGhcQ/edit?usp=sharing' },
-        { topic: '6. Class Relationships', url: 'https://docs.google.com/document/d/1f4KokXp3kxYaS8d8M0NQ15X1LKSqM5AiMTurfj06Fec/edit?usp=sharing' },
+        { topic: '6. Class Relationships', url: 'https://docs.google.com/document/d/1maxBfuCxWF9FGnwTSfpwnZpJR6spzUtAySqolPLfM24/edit?usp=sharing' },
         { topic: '7. Assignment Set 3', url: 'https://docs.google.com/document/d/1p5LKZSeYCGBuKeW2hykaXDoVqSu1FWFhAn0ZQluSh_s/edit?usp=sharing' },
     ];
 
