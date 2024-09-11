@@ -12,26 +12,6 @@
     <div class="container">
         <h1>Naan-Mudhalvan Topics</h1>
 
-        <!-- Toggle Button -->
-        <button id="toggleAdmin" class="hidden" onclick="toggleAdminPanel()">Switch to Admin Panel</button>
-
-        <!-- Admin Panel: Hidden by default -->
-        <div id="adminPanel">
-            <div class="input-section">
-                <input type="password" id="adminPassword" placeholder="Enter Admin Password">
-                <button onclick="validatePassword()">Enter Admin Mode</button>
-            </div>
-
-            <div id="adminControls" class="hidden">
-                <div class="input-section">
-                    <input type="text" id="topicInput" placeholder="Enter a topic">
-                    <input type="text" id="urlInput" placeholder="Enter a URL">
-                    <button onclick="addTopic()">Add Topic</button>
-                </div>
-                <div id="errorMessage" class="error-message"></div>
-            </div>
-        </div>
-
         <!-- Table visible to both user and admin -->
         <table id="topicsTable">
             <thead>
@@ -46,6 +26,11 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Footer with copyright information -->
+    <footer style="text-align: center; padding: 10px; background-color: #f1f1f1; margin-top: 20px;">
+        <p>&copy; 2024 Naan-Mudhalvan Project. All rights reserved.</p>
+    </footer>
 
     <script src="script.js"></script>
 </body>

@@ -101,6 +101,7 @@ function loadPredefinedData() {
 
         const topicCell = newRow.insertCell(1);
         topicCell.textContent = item.topic;
+        topicCell.style.textAlign = 'start'; // This sets the text-align to start
 
         const navCell = newRow.insertCell(2);
         const navButton = document.createElement('button');
