@@ -4,55 +4,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced Manual Parsing Calculator</title>
+    <title>Bulk Calculator</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
 </head>
 
 <body>
-    <div class="theme-switch">
-        <input type="checkbox" id="themeToggle" aria-label="Toggle dark/light theme">
-        <label for="themeToggle">Toggle Dark/Light Theme</label>
-    </div>
+    <div class="container">
 
-    <main class="container">
-        <h1>Advanced Bulk Manual Parsing Calculator</h1>
+        <div id="toastContainer"></div>
+
+        <h1>Bulk Calculator</h1>
 
         <textarea id="userInput" placeholder="Enter numbers separated by spaces, newlines, or commas..."
             oninput="validateInput()" aria-label="Input field for numbers"></textarea>
 
+        <div id="displayBox">
+            <h2>Operation:</h2>
+            <div id="operationDisplay">Select an operation</div>
+        </div>
+
         <section class="button-group operators">
-            <button onclick="setOperation('+')" aria-label="Addition">Addition</button>
-            <button onclick="setOperation('-')" aria-label="Subtraction">Subtraction</button>
-            <button onclick="setOperation('*')" aria-label="Multiplication">Multiplication</button>
-            <button onclick="setOperation('/')" aria-label="Division">Division</button>
+            <button onclick="setOperation('+')" aria-label="Addition"><i class="fas fa-plus"></i> Add</button>
+            <button onclick="setOperation('-')" aria-label="Subtraction"><i class="fas fa-minus"></i> Subtract</button>
+            <button onclick="setOperation('*')" aria-label="Multiplication"><i class="fas fa-times"></i>
+                Multiply</button>
+            <button onclick="setOperation('/')" aria-label="Division"><i class="fas fa-divide"></i> Divide</button>
         </section>
 
         <section class="button-group actions">
-            <button onclick="calculateResult()" aria-label="Calculate result">Calculate</button>
-            <button onclick="clearInput()" aria-label="Clear input">Clear Input</button>
-            <button onclick="resetResult()" aria-label="Reset result">Reset Result</button>
-            <button onclick="copyResult()" aria-label="Copy result">Copy Result</button>
+            <button onclick="calculateResult()" aria-label="Calculate result"><i class="fas fa-equals"></i>
+                Calculate</button>
+            <button onclick="clearInput()" aria-label="Clear input"><i class="fas fa-backspace"></i> Clear
+                Input</button>
+            <button onclick="resetResult()" aria-label="Reset result"><i class="fas fa-undo"></i> Reset Result</button>
+            <button onclick="copyResult()" aria-label="Copy result"><i class="fas fa-copy"></i> Copy Result</button>
         </section>
 
-        <div id="displayBox">
-            <h2>Operation:</h2>
-            <textarea id="operationDisplay">Select an operation</textarea>
-        </div>
-
         <div id="result">The result is: 0</div>
-        <div class="error" id="error"></div>
-        <div class="info" id="info"></div>
-    </main>
+    </div>
 
-    <!-- Footer with copyright information -->
-    <footer
-        style="text-align: center; padding: 10px; background-color: #f1f1f1; margin-top: 20px; text-decoration: none;">
-        <span>
-            <a style="text-decoration: none;" href="https://samtocode24.web.app" target="_blank"
-                rel="noopener noreferrer">
-                <p>&copy; 2024 Bulk Calculator Project. Made by Samuvel A. All rights reserved.</p>
-            </a>
-        </span>
+    <footer>
+        <a href="https://samtocode24.web.app" target="_blank" rel="noopener noreferrer">
+            &copy; 2024 Bulk Calculator Project. Made by Samuvel A. All rights reserved.
+        </a>
     </footer>
 
     <script src="script.js"></script>
