@@ -101,6 +101,10 @@ header a:visited {
 	color: white;
 }
 
+header a {
+	color: white;
+}
+
 .search-container {
 	display: flex;
 	width: 100%;
