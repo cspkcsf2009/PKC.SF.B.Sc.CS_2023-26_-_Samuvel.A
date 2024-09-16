@@ -4,38 +4,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Naan-Mudhalvan Project</title>
+    <meta name="description"
+        content="An advanced learning hub for Naan-Mudhalvan topics with enhanced navigation and user experience.">
+    <title>Naan Mudhalvan Cheatsheet</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
 </head>
 
 <body>
-    <div class="container">
-        <h1>Naan-Mudhalvan Topics</h1>
+    <nav>
+        <h1>B.Sc. CS CLASS ACADEMICS SUPPORT HUB (2023-26) - PKC</h1>
+        <!-- Dark Mode Toggle with Label and Icons -->
+        <div class="dark-mode-toggle">
+            <!-- <span>Theme:</span> -->
+            <i class="fas fa-sun" id="lightModeIcon"></i> <!-- Sun icon for light mode -->
+            <label class="switch">
+                <input type="checkbox" id="toggleDarkMode">
+                <span class="slider"></span>
+            </label>
+            <i class="fas fa-moon" id="darkModeIcon"></i> <!-- Moon icon for dark mode -->
+        </div>
+    </nav>
 
-        <!-- Table visible to both user and admin -->
-        <table id="topicsTable">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Topic</th>
-                    <th>Navigation</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Predefined rows for users -->
-            </tbody>
-        </table>
+    <div class="page-wrapper">
+        <header>
+            <a href="https://infyspringboard.onwingspan.com/web/en/app/toc/lex_auth_0125409722749255681063_shared/overview"
+                target="_blank" rel="noopener noreferrer">
+                <h2>Naan Mudhalvan Cheatsheet - Infosys Springboard</h2>
+            </a>
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="Search topics...">
+                <button id="clearSearch"><i class="fas fa-times"></i></button>
+            </div>
+        </header>
+
+        <main>
+            <div id="loadingSpinner" class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i> Loading...
+            </div>
+
+            <table id="topicsTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Topic</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Topics will be populated dynamically -->
+                </tbody>
+            </table>
+
+            <div class="pagination">
+                <button id="prevPage"><i class="fas fa-chevron-left"></i> Prev</button>
+                <span id="pageInfo">Page 1 of 1</span>
+                <button id="nextPage">Next <i class="fas fa-chevron-right"></i></button>
+            </div>
+        </main>
     </div>
 
-    <!-- Footer with copyright information -->
-    <footer
-        style="text-align: center; padding: 10px; background-color: #f1f1f1; margin-top: 20px; text-decoration: none;">
-        <span>
-            <a style="text-decoration: none;" href="https://samtocode24.web.app" target="_blank"
-                rel="noopener noreferrer">
-                <p>&copy; 2024 Naan-Mudhalvan-Support Project. Made by Samuvel A. All rights reserved.</p>
-            </a>
-        </span>
+    <footer>
+        <p>&copy; 2024 Naan Mudhalvan Cheatsheet. Developed by <a href="https://samtocode24.web.app" target="_blank"
+                rel="noopener noreferrer">Samuvel A</a>. All rights reserved.</p>
     </footer>
 
     <script src="script.js"></script>

@@ -1,114 +1,138 @@
 document.addEventListener('DOMContentLoaded', function () {
+    const toggleDarkMode = document.getElementById('toggleDarkMode');
+    const searchInput = document.getElementById('searchInput');
+    const clearSearch = document.getElementById('clearSearch');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const topicsTable = document.getElementById('topicsTable');
+    const prevPage = document.getElementById('prevPage');
+    const nextPage = document.getElementById('nextPage');
+    const pageInfo = document.getElementById('pageInfo');
+
+    let topics = [];
+    let filteredTopics = [];
+    let currentPage = 1;
+    const itemsPerPage = 7;
+
+    // Initialize
     loadPredefinedData();
-});
+    initializeDarkMode();
 
-function toggleAdminPanel() {
-    const adminPanel = document.getElementById('adminPanel');
-    const adminControls = document.getElementById('adminControls');
-    const toggleButton = document.getElementById('toggleAdmin');
+    // Event listeners
+    toggleDarkMode.addEventListener('change', toggleDarkModeHandler);
+    searchInput.addEventListener('input', debounce(handleSearch, 300));
+    clearSearch.addEventListener('click', clearSearchInput);
+    prevPage.addEventListener('click', () => changePage(-1));
+    nextPage.addEventListener('click', () => changePage(1));
 
-    if (adminPanel.classList.contains('hidden')) {
-        adminPanel.classList.remove('hidden');
-        toggleButton.textContent = "Switch to User View";
-    } else {
-        adminPanel.classList.add('hidden');
-        adminControls.classList.add('hidden');
-        toggleButton.textContent = "Switch to Admin Panel";
-    }
-}
+    function loadPredefinedData() {
+        showLoadingSpinner();
 
-function validatePassword() {
-    const passwordInput = document.getElementById('adminPassword');
-    const adminControls = document.getElementById('adminControls');
-    const errorMessage = document.getElementById('errorMessage');
-
-    const correctPassword = 'admin123'; // Change this to your desired password
-
-    if (passwordInput.value === correctPassword) {
-        adminControls.classList.remove('hidden');
-        errorMessage.textContent = '';
-    } else {
-        errorMessage.textContent = 'Incorrect password!';
-    }
-}
-
-function addTopic() {
-    const topicInput = document.getElementById('topicInput');
-    const urlInput = document.getElementById('urlInput');
-    const errorMessage = document.getElementById('errorMessage');
-    const topic = topicInput.value.trim();
-    const url = urlInput.value.trim();
-
-    errorMessage.textContent = '';
-
-    if (topic === "" || url === "") {
-        errorMessage.textContent = "Both topic and URL are required!";
-        return;
+        // Fetch the predefinedData.json file
+        fetch('predefinedData.json')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load JSON');
+                }
+                return response.json();
+            })
+            .then(data => {
+                topics = data;
+                filteredTopics = [...topics];
+                // Cache the data in localStorage for faster future loads
+                localStorage.setItem('topicsData', JSON.stringify(data));
+                hideLoadingSpinner();
+                renderTopics();
+            })
+            .catch(error => {
+                console.error('Error fetching predefined data:', error);
+                showError('Failed to load topics. Please try again later.');
+                hideLoadingSpinner();
+            });
     }
 
-    if (!isValidURL(url)) {
-        errorMessage.textContent = "Please enter a valid URL!";
-        return;
+    function renderTopics() {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const pageTopics = filteredTopics.slice(startIndex, endIndex);
+
+        const tbody = topicsTable.querySelector('tbody');
+        tbody.innerHTML = '';
+        pageTopics.forEach((item, index) => {
+            const row = tbody.insertRow();
+            row.innerHTML = `
+                <td>${startIndex + index + 1}</td>
+                <td class="topicLeft">${item.topic}</td>
+                <td>
+                    <a href="${item.url}" target="_blank" rel="noopener noreferrer">
+                        <i class="fas fa-external-link-alt"></i> Go to Topic
+                    </a>
+                </td>
+            `;
+        });
+
+        updatePagination();
     }
 
-    const table = document.getElementById('topicsTable').getElementsByTagName('tbody')[0];
-    const newRow = table.insertRow();
-
-    const rowNumCell = newRow.insertCell(0);
-    rowNumCell.textContent = table.rows.length;
-
-    const topicCell = newRow.insertCell(1);
-    topicCell.textContent = topic;
-
-    const navCell = newRow.insertCell(2);
-    const navButton = document.createElement('button');
-    navButton.textContent = 'Go';
-    navButton.onclick = function () {
-        window.open(url, '_blank');
-    };
-    navCell.appendChild(navButton);
-
-    topicInput.value = '';
-    urlInput.value = '';
-}
-
-function isValidURL(string) {
-    try {
-        new URL(string);
-        return true;
-    } catch (_) {
-        return false;
+    function updatePagination() {
+        const totalPages = Math.ceil(filteredTopics.length / itemsPerPage);
+        pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+        prevPage.disabled = currentPage === 1;
+        nextPage.disabled = currentPage === totalPages;
     }
-}
 
-function loadPredefinedData() {
-    const predefinedTopics = [
-        { topic: '2. Abstraction & Encapsulation', url: 'https://docs.google.com/document/d/17YJULE8l86ohKEVuMD5rT4ZGUEB7D1ulz_AlkbRoUMc/edit?usp=sharing' },
-        { topic: '3. Assignment Set 1', url: 'https://docs.google.com/document/d/1Ub1qBYpSOUSXjq6ndyrLQnNNqBFESzS0zxiYl2IbCz0/edit?usp=sharing' },
-        { topic: '4. Static', url: 'https://docs.google.com/document/d/1Ot2NOqvmuW_DNSH_MAUeBrCW0pnZiU44Qh45aLjTKSo/edit?usp=sharing' },
-        { topic: '5. Assignment Set 2', url: 'https://docs.google.com/document/d/1vLME2BdCWX07IG_Qw9iYlqg2dtLsLPlImlGOs3hGhcQ/edit?usp=sharing' },
-        { topic: '6. Class Relationships', url: 'https://docs.google.com/document/d/1maxBfuCxWF9FGnwTSfpwnZpJR6spzUtAySqolPLfM24/edit?usp=sharing' },
-        { topic: '7. Assignment Set 3', url: 'https://docs.google.com/document/d/1p5LKZSeYCGBuKeW2hykaXDoVqSu1FWFhAn0ZQluSh_s/edit?usp=sharing' },
-    ];
+    function changePage(direction) {
+        currentPage += direction;
+        renderTopics();
+    }
 
-    const table = document.getElementById('topicsTable').getElementsByTagName('tbody')[0];
+    function handleSearch() {
+        const searchTerm = searchInput.value.toLowerCase();
+        filteredTopics = topics.filter(item =>
+            item.topic.toLowerCase().includes(searchTerm)
+        );
+        currentPage = 1;
+        renderTopics();
+    }
 
-    predefinedTopics.forEach((item, index) => {
-        const newRow = table.insertRow();
+    function clearSearchInput() {
+        searchInput.value = '';
+        filteredTopics = [...topics];
+        currentPage = 1;
+        renderTopics();
+    }
 
-        const rowNumCell = newRow.insertCell(0);
-        rowNumCell.textContent = index + 1;
+    function toggleDarkModeHandler() {
+        document.body.classList.toggle('dark-mode');
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', isDarkMode);
+    }
 
-        const topicCell = newRow.insertCell(1);
-        topicCell.textContent = item.topic;
-        topicCell.style.textAlign = 'start'; // This sets the text-align to start
+    function showLoadingSpinner() {
+        loadingSpinner.style.display = 'block';
+    }
 
-        const navCell = newRow.insertCell(2);
-        const navButton = document.createElement('button');
-        navButton.textContent = 'Go';
-        navButton.onclick = function () {
-            window.open(item.url, '_blank');
+    function hideLoadingSpinner() {
+        loadingSpinner.style.display = 'none';
+    }
+
+    function initializeDarkMode() {
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+        if (isDarkMode) {
+            document.body.classList.add('dark-mode');
+            toggleDarkMode.checked = true;
+        }
+    }
+
+    function showError(message) {
+        console.error(message);
+        // Implement your error display mechanism here (e.g., showing a message on the page)
+    }
+
+    function debounce(func, delay) {
+        let timeout;
+        return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), delay);
         };
-        navCell.appendChild(navButton);
-    });
-}
+    }
+});
