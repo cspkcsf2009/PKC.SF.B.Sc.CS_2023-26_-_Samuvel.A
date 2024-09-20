@@ -381,6 +381,11 @@ footer a:hover {
 	table td {
 		font-size: 2rem;
 	}
+
+	/* table th,
+	table td {
+		font-size: 2rem;
+	} */
 }
 
 /* Dark mode styles */
