@@ -368,7 +368,18 @@ footer a:hover {
 
 	table th,
 	table td {
-		font-size: 1.5rem;
+		font-size: 1.125rem;
+	}
+}
+
+@media (min-width: 1536px) {
+	/* .page-wrapper {
+		max-width: 1400px;
+	} */
+
+	table th,
+	table td {
+		font-size: 2rem;
 	}
 }
 
