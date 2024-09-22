@@ -19,20 +19,25 @@ logger = setup_logger()
 
 # Load environment variables
 load_dotenv()
-firebase_secret = os.getenv('FIREBASE_SECRET_KEY')
 threshold = float(os.getenv('RECOGNITION_THRESHOLD', 0.5))
 
-# Validate Firebase secret key
-if not firebase_secret:
-    logger.error("FIREBASE_SECRET_KEY not found in environment variables.")
-    raise ValueError("FIREBASE_SECRET_KEY environment variable not set")
+# Determine if running locally or in Render
+if os.getenv('RENDER') == 'true':  # Check for Render environment
+    firebase_secret_path = '/etc/secrets/serviceAccountKey.json'
+else:
+    firebase_secret_path = '../serviceAccountKey.json'  # Adjust this path as needed for local development
+
+# Validate Firebase secret key file
+if not os.path.exists(firebase_secret_path):
+    logger.error(f"{firebase_secret_path} not found. Make sure the secret file is correctly set up.")
+    raise FileNotFoundError(f"{firebase_secret_path} not found.")
 
 # Initialize Flask app
 app = Flask(__name__)
 
 # Initialize Firebase Admin SDK
 try:
-    cred = credentials.Certificate(firebase_secret)
+    cred = credentials.Certificate(firebase_secret_path)
     firebase_admin.initialize_app(cred, {
         'storageBucket': 'face-recognition-storage.appspot.com'
     })
