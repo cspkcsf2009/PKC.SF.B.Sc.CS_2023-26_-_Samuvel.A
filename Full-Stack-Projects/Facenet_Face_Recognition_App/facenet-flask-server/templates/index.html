@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body>
+    <header>
+        <h1>Face Recognition System</h1>
+        <p>Real-time face detection and recognition</p>
+    </header>
+    <main>
+        <div class="video-container">
+            <img src="{{ url_for('video_feed') }}" alt="Video Stream" id="video-stream">
+        </div>
+        <footer>
+            <p>Press 'Q' to quit the video stream.</p>
+        </footer>
+    </main>
+</body>
+
+</html>
