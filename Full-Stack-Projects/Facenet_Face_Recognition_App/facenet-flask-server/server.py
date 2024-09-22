@@ -13,6 +13,8 @@ from facenet_pytorch import MTCNN, InceptionResnetV1
 from sklearn.metrics.pairwise import cosine_similarity
 from flask import Flask, render_template, Response
 from logger_config import setup_logger
+import gc
+from concurrent.futures import ThreadPoolExecutor
 
 # Initialize logger
 logger = setup_logger()
@@ -22,10 +24,10 @@ load_dotenv()
 threshold = float(os.getenv('RECOGNITION_THRESHOLD', 0.5))
 
 # Determine if running locally or in Render
-if os.getenv('RENDER') == 'true':  # Check for Render environment
-    firebase_secret_path = '/etc/secrets/serviceAccountKey.json'
-else:
-    firebase_secret_path = '../serviceAccountKey.json'  # Adjust this path as needed for local development
+firebase_secret_path = (
+    '/etc/secrets/serviceAccountKey.json' if os.getenv('RENDER') == 'true' 
+    else '../serviceAccountKey.json'
+)
 
 # Validate Firebase secret key file
 if not os.path.exists(firebase_secret_path):
@@ -51,6 +53,9 @@ except Exception as e:
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 mtcnn = MTCNN(keep_all=True, device=device)
 model = InceptionResnetV1(pretrained='vggface2').eval().to(device)
+
+# Create a thread pool
+executor = ThreadPoolExecutor(max_workers=4)
 
 def load_embeddings():
     local_cache_path = 'known_embeddings.pkl'
@@ -91,7 +96,6 @@ def save_embeddings(known_encodings):
 
 def load_known_people_images_from_firebase():
     known_encodings = load_embeddings()
-
     if known_encodings:
         logger.info("Using cached known encodings.")
         return known_encodings
@@ -103,10 +107,10 @@ def load_known_people_images_from_firebase():
         for blob in blobs:
             if blob.name.endswith('/') and blob.name != 'known_people/':
                 person_name = blob.name.split('/')[-2]
-                person_images = []
                 logger.info(f"Loading images for: {person_name}")
-                person_blobs = bucket.list_blobs(prefix=f'{blob.name}')
+                person_images = []
 
+                person_blobs = bucket.list_blobs(prefix=f'{blob.name}')
                 for person_blob in person_blobs:
                     file_extension = os.path.splitext(person_blob.name)[1].lower()
                     if file_extension in allowed_extensions:
@@ -127,6 +131,9 @@ def load_known_people_images_from_firebase():
 
                 known_encodings[person_name] = person_images
                 logger.info(f"Loaded {len(person_images)} images for {person_name}.")
+                
+                del person_images
+                gc.collect()
 
         logger.info("Finished loading known people images.")
         save_embeddings(known_encodings)
@@ -143,127 +150,120 @@ def get_face_name(face_embedding, known_embeddings, threshold):
                 logger.warning(f"Embedding shape mismatch: {face_embedding.shape} vs {known_embedding.shape}")
                 continue
             
-            # Resizing embeddings to ensure they have the same shape
-            if face_embedding.size != known_embedding.size:
-                face_embedding = face_embedding[:known_embedding.size]
-                known_embedding = known_embedding[:face_embedding.size]
-
             similarity = cosine_similarity(face_embedding.reshape(1, -1), known_embedding.reshape(1, -1))[0][0]
             if similarity >= threshold:
                 return name
     return "Unknown"
+
+def process_face(face, known_encodings):
+    try:
+        mtcnn_face = mtcnn(face)
+        if mtcnn_face is None or len(mtcnn_face) == 0:
+            # logger.warning("No face detected in the cropped region.")
+            return None
+
+        face_embedding = model(mtcnn_face.to(device)).detach().cpu().numpy()
+        name = get_face_name(face_embedding, known_encodings, threshold)
+
+        return name
+    except Exception as e:
+        logger.error(f"Error processing face: {e}")
+        return None
 
 def recognize_faces_in_frame(frame, known_encodings):
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     boxes, _ = mtcnn.detect(rgb_frame)
 
     results = []
-    if boxes is not None and len(boxes) > 0:  
-        for box in boxes:
-            face = rgb_frame[int(box[1]):int(box[3]), int(box[0]):int(box[2])]
-            if face.size == 0:
-                logger.warning("Detected face region is empty.")
-                continue
+    if boxes is not None and len(boxes) > 0:
+        faces = [rgb_frame[int(box[1]):int(box[3]), int(box[0]):int(box[2])] for box in boxes]
+        
+        # Use ThreadPoolExecutor to process faces in parallel
+        names = list(executor.map(lambda face: process_face(face, known_encodings), faces))
+        
+        results = [(box, name) for box, name in zip(boxes, names) if name is not None]
 
-            try:
-                mtcnn_face = mtcnn(face)
-                if mtcnn_face is None or len(mtcnn_face) == 0:
-                    logger.warning("No face detected in the cropped region.")
-                    continue
-
-                face_embedding = model(mtcnn_face.to(device)).detach().cpu().numpy()
-                name = get_face_name(face_embedding, known_encodings, threshold)
-
-                results.append((box, name))
-            except Exception as e:
-                logger.error(f"Error processing face in frame: {e}")
-    else:
-        logger.warning("No faces detected in the frame.")
+    del rgb_frame, boxes
+    gc.collect()
 
     return results
 
 def annotate_frame(frame, recognized_faces):
+    overlay = frame.copy()
+    
     for (box, name) in recognized_faces:
-        # Set color based on whether the face is recognized or not
-        if name == "Unknown":
-            color = (0, 0, 255)  # Red for unrecognized faces
-        else:
-            color = (0, 255, 0)  # Green for recognized faces
+        color = (0, 0, 255) if name == "Unknown" else (0, 255, 0)
 
-        # Draw rounded rectangle (approximation with cv2 polylines)
-        x1, y1, x2, y2 = int(box[0]), int(box[1]), int(box[2]), int(box[3])
+        x1, y1, x2, y2 = map(int, box)
+        cv2.rectangle(overlay, (x1, y1), (x2, y2), color, 2, cv2.LINE_AA)
+
+        font_scale = max(0.7, min(1.2, (y2 - y1) / 150))
         thickness = 2
-        radius = 10  # Radius for rounded corners
         
-        # Top and bottom lines
-        cv2.line(frame, (x1 + radius, y1), (x2 - radius, y1), color, thickness)  # Top
-        cv2.line(frame, (x1 + radius, y2), (x2 - radius, y2), color, thickness)  # Bottom
-
-        # Left and right lines
-        cv2.line(frame, (x1, y1 + radius), (x1, y2 - radius), color, thickness)  # Left
-        cv2.line(frame, (x2, y1 + radius), (x2, y2 - radius), color, thickness)  # Right
-
-        # Rounded corners (approximated with lines)
-        cv2.line(frame, (x1, y1 + radius), (x1 + radius, y1), color, thickness)  # Top-left
-        cv2.line(frame, (x2, y1 + radius), (x2 - radius, y1), color, thickness)  # Top-right
-        cv2.line(frame, (x1, y2 - radius), (x1 + radius, y2), color, thickness)  # Bottom-left
-        cv2.line(frame, (x2, y2 - radius), (x2 - radius, y2), color, thickness)  # Bottom-right
-
-        # Add a semi-transparent background for text
-        overlay = frame.copy()
-        alpha = 0.4  # Transparency factor
-
-        # Calculate text size and position
-        font_scale = 0.5 + 0.5 * ((y2 - y1) / 200)  # Adjust font size based on bounding box height
-        text_size = cv2.getTextSize(name, cv2.FONT_HERSHEY_SIMPLEX, font_scale, 1)[0]
+        text_size, _ = cv2.getTextSize(name, cv2.FONT_HERSHEY_SIMPLEX, font_scale, thickness)
+        text_w, text_h = text_size
         text_x = x1
-        text_y = y1 - 10 if y1 - 10 > 10 else y1 + 20
+        text_y = y1 - 15 if y1 > text_h + 15 else y2 + text_h + 15
 
-        # Create background rectangle for text
-        cv2.rectangle(overlay, (text_x, text_y - text_size[1] - 5), (text_x + text_size[0] + 10, text_y + 5), color, -1)
-        cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0, frame)
+        padding = 5
+        cv2.rectangle(overlay, 
+                      (text_x - padding, text_y - text_h - padding), 
+                      (text_x + text_w + padding, text_y + padding), 
+                      (0, 0, 0), 
+                      -1)
 
-        # Put the text on the frame
-        cv2.putText(frame, name, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), 2)
+        text_color = (255, 255, 255)
+        cv2.putText(overlay, name, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, 
+                    font_scale, text_color, thickness, cv2.LINE_AA)
+
+    cv2.addWeighted(frame, 0.6, overlay, 0.4, 0, frame)
+
+    return frame
 
 def generate_frames():
     known_encodings = load_known_people_images_from_firebase()
-    cap = cv2.VideoCapture(0)
+    video_capture = cv2.VideoCapture(0)
+    
+    frame_rate = 30
+    prev = 0
 
-    if not cap.isOpened():
-        logger.error("Failed to open video capture.")
-        return
+    while True:
+        time_elapsed = time.time() - prev
+        success, frame = video_capture.read()
 
-    try:
-        while True:
-            ret, frame = cap.read()
-            if not ret or frame is None or frame.size == 0:
-                logger.error("Failed to capture frame.")
-                break
+        if not success:
+            logger.error("Failed to capture video frame.")
+            break
 
-            recognized_faces = recognize_faces_in_frame(frame, known_encodings)
-            annotate_frame(frame, recognized_faces)
+        if time_elapsed > 1./frame_rate:
+            prev = time.time()
+
+            # Resize frame for faster processing
+            small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+
+            recognized_faces = recognize_faces_in_frame(small_frame, known_encodings)
+            recognized_faces = [(box * 4, name) for box, name in recognized_faces]
+
+            frame = annotate_frame(frame, recognized_faces)
 
             _, buffer = cv2.imencode('.jpg', frame)
             frame = buffer.tobytes()
-
             yield (b'--frame\r\n'
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-    except Exception as e:
-        logger.error(f"Error during video streaming: {e}")
+    video_capture.release()
+    cv2.destroyAllWindows()
 
-    finally:
-        cap.release()
+@app.route('/video_feed')
+def video_feed():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-@app.route('/video_feed')
-def video_feed():
-    return Response(generate_frames(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
-
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=int(os.environ.get("PORT", 5000)))
+    try:
+        app.run(host='0.0.0.0', port=int(os.getenv('PORT', 5000)), threaded=True)
+    except Exception as e:
+        logger.error(f"Error starting Flask app: {e}")
