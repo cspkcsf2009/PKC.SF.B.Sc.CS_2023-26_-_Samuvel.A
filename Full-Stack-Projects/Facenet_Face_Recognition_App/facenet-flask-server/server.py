@@ -88,6 +88,7 @@ def load_known_people_images_from_firebase():
     known_encodings = load_embeddings()
 
     if known_encodings:
+        logger.info("Using cached known encodings.")
         return known_encodings
 
     allowed_extensions = {'.jpg', '.jpeg', '.png', '.bmp', '.gif'}
@@ -137,6 +138,11 @@ def get_face_name(face_embedding, known_embeddings, threshold):
                 logger.warning(f"Embedding shape mismatch: {face_embedding.shape} vs {known_embedding.shape}")
                 continue
             
+            # Resizing embeddings to ensure they have the same shape
+            if face_embedding.size != known_embedding.size:
+                face_embedding = face_embedding[:known_embedding.size]
+                known_embedding = known_embedding[:face_embedding.size]
+
             similarity = cosine_similarity(face_embedding.reshape(1, -1), known_embedding.reshape(1, -1))[0][0]
             if similarity >= threshold:
                 return name
@@ -154,15 +160,18 @@ def recognize_faces_in_frame(frame, known_encodings):
                 logger.warning("Detected face region is empty.")
                 continue
 
-            mtcnn_face = mtcnn(face)
-            if mtcnn_face is None or len(mtcnn_face) == 0:
-                logger.warning("No face detected in the cropped region.")
-                continue
+            try:
+                mtcnn_face = mtcnn(face)
+                if mtcnn_face is None or len(mtcnn_face) == 0:
+                    logger.warning("No face detected in the cropped region.")
+                    continue
 
-            face_embedding = model(mtcnn_face.to(device)).detach().cpu().numpy()
-            name = get_face_name(face_embedding, known_encodings, threshold)
+                face_embedding = model(mtcnn_face.to(device)).detach().cpu().numpy()
+                name = get_face_name(face_embedding, known_encodings, threshold)
 
-            results.append((box, name))
+                results.append((box, name))
+            except Exception as e:
+                logger.error(f"Error processing face in frame: {e}")
     else:
         logger.warning("No faces detected in the frame.")
 
@@ -170,8 +179,47 @@ def recognize_faces_in_frame(frame, known_encodings):
 
 def annotate_frame(frame, recognized_faces):
     for (box, name) in recognized_faces:
-        cv2.rectangle(frame, (int(box[0]), int(box[1])), (int(box[2]), int(box[3])), (255, 0, 0), 2)
-        cv2.putText(frame, name, (int(box[0]), int(box[1] - 10)), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2)
+        # Set color based on whether the face is recognized or not
+        if name == "Unknown":
+            color = (0, 0, 255)  # Red for unrecognized faces
+        else:
+            color = (0, 255, 0)  # Green for recognized faces
+
+        # Draw rounded rectangle (approximation with cv2 polylines)
+        x1, y1, x2, y2 = int(box[0]), int(box[1]), int(box[2]), int(box[3])
+        thickness = 2
+        radius = 10  # Radius for rounded corners
+        
+        # Top and bottom lines
+        cv2.line(frame, (x1 + radius, y1), (x2 - radius, y1), color, thickness)  # Top
+        cv2.line(frame, (x1 + radius, y2), (x2 - radius, y2), color, thickness)  # Bottom
+
+        # Left and right lines
+        cv2.line(frame, (x1, y1 + radius), (x1, y2 - radius), color, thickness)  # Left
+        cv2.line(frame, (x2, y1 + radius), (x2, y2 - radius), color, thickness)  # Right
+
+        # Rounded corners (approximated with lines)
+        cv2.line(frame, (x1, y1 + radius), (x1 + radius, y1), color, thickness)  # Top-left
+        cv2.line(frame, (x2, y1 + radius), (x2 - radius, y1), color, thickness)  # Top-right
+        cv2.line(frame, (x1, y2 - radius), (x1 + radius, y2), color, thickness)  # Bottom-left
+        cv2.line(frame, (x2, y2 - radius), (x2 - radius, y2), color, thickness)  # Bottom-right
+
+        # Add a semi-transparent background for text
+        overlay = frame.copy()
+        alpha = 0.4  # Transparency factor
+
+        # Calculate text size and position
+        font_scale = 0.5 + 0.5 * ((y2 - y1) / 200)  # Adjust font size based on bounding box height
+        text_size = cv2.getTextSize(name, cv2.FONT_HERSHEY_SIMPLEX, font_scale, 1)[0]
+        text_x = x1
+        text_y = y1 - 10 if y1 - 10 > 10 else y1 + 20
+
+        # Create background rectangle for text
+        cv2.rectangle(overlay, (text_x, text_y - text_size[1] - 5), (text_x + text_size[0] + 10, text_y + 5), color, -1)
+        cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0, frame)
+
+        # Put the text on the frame
+        cv2.putText(frame, name, (text_x, text_y), cv2.FONT_HERSHEY_SIMPLEX, font_scale, (255, 255, 255), 2)
 
 def generate_frames():
     known_encodings = load_known_people_images_from_firebase()
@@ -181,20 +229,27 @@ def generate_frames():
         logger.error("Failed to open video capture.")
         return
 
-    while True:
-        ret, frame = cap.read()
-        if not ret or frame is None or frame.size == 0:
-            logger.error("Failed to capture frame.")
-            break
+    try:
+        while True:
+            ret, frame = cap.read()
+            if not ret or frame is None or frame.size == 0:
+                logger.error("Failed to capture frame.")
+                break
 
-        recognized_faces = recognize_faces_in_frame(frame, known_encodings)
-        annotate_frame(frame, recognized_faces)
+            recognized_faces = recognize_faces_in_frame(frame, known_encodings)
+            annotate_frame(frame, recognized_faces)
 
-        _, buffer = cv2.imencode('.jpg', frame)
-        frame = buffer.tobytes()
+            _, buffer = cv2.imencode('.jpg', frame)
+            frame = buffer.tobytes()
 
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+    except Exception as e:
+        logger.error(f"Error during video streaming: {e}")
+
+    finally:
+        cap.release()
 
 @app.route('/')
 def index():
